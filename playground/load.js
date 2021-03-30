@@ -13,16 +13,22 @@ const STORAGE = 'https://api.bigchaindb.caelumapp.com/api/v1/'
 
 // Main function.
 const load = async (did) => {
-  // Connect Caelum-SDK & Create a new Root Organization. Governanace Level 0
-  const caelum = new Caelum(STORAGE, GOVERNANCE)
-  const pool = await caelum.loadOrganization(did)
-  await pool.loadInformation()
-  await pool.loadApplications()
-  await pool.loadCertificates()
-  console.log(pool)
-  const certs = await pool.searchCertificates()
-  console.log(certs)
+    return new Promise((resolve) => {
 
+  const caelum = new Caelum(STORAGE, GOVERNANCE)
+  caelum.loadOrganization(did)
+    .then(pool => {
+      return Promise.all([
+        pool.loadInformation(),
+        pool.loadApplications(),
+        pool.loadCertificates(),
+        pool.searchCertificates()])
+    })
+    .then((result) => {
+      console.log(result[3])
+      resolve()
+    })
+  })
 }
 
 /**

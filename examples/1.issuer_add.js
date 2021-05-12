@@ -11,8 +11,7 @@ const main = async () => {
   // Connect Caelum-SDK
   const caelum = new Caelum(STORAGE, GOVERNANCE)
   const spinner = new Spinner('Governance');
-  const governance = new Blockchain(GOVERNANCE)
-  await governance.connect()
+  await caelum.governance.connect()
 
   spinner.setSpinnerString('|/-\\');
   spinner.start();
@@ -48,25 +47,23 @@ const main = async () => {
 
   // Now Root can save the organization to Governance.
   spinner.setSpinnerTitle('Governance : Register Did')
-  governance.setKeyring('what unlock stairs benefit salad agent rent ask diamond horror fox aware')
-  await governance.registerDid(org.did, org.keys.governance.address, 1000)
+  caelum.governance.setKeyring('what unlock stairs benefit salad agent rent ask diamond horror fox aware')
+  await caelum.governance.registerDid(org.did, org.keys.governance.address, 1000)
 
   spinner.setSpinnerTitle('Governance : Wait for the Block')
-| await governance.wait4Event('DidRegistered')
+| await caelum.governance.wait4Event('DidRegistered')
 
   spinner.setSpinnerTitle('Governance : Send tokens')
   const amountTransfer = Blockchain.units * 500
-  await governance.transferTokensNoFees(org.keys.governance.address, amountTransfer)
+  await caelum.governance.transferTokensNoFees(org.keys.governance.address, amountTransfer)
 
   spinner.setSpinnerTitle('Governance : Register createTxId')
-  governance.setKeyring(org.keys.governance.mnemonic)
-  await governance.registerDidDocument(org.did, org.createTxId)
+  caelum.governance.setKeyring(org.keys.governance.mnemonic)
+  await caelum.governance.registerDidDocument(org.did, org.createTxId)
 
   spinner.stop()
 
-
   log('\n' + chalk.grey('Empresa : ') + chalk.cyan('Caelum Innovation SL'))
-  log(chalk.grey(' - DID  : ') + chalk.magenta(org.did))
   log(chalk.grey(' - TxID : ') + chalk.magenta(org.createTxId))
   const json = await org.export('test')
     console.log(json)

@@ -81,6 +81,24 @@ module.exports = class Caelum {
   }
 
   /**
+   * findOrganization. Retrieves an organization
+   *
+   * @param {string} query Query String
+   */
+  async findOrganization (query) {
+    return new Promise((resolve, reject) => {
+      BigchainDB.searchMetadata(this.storage, query)
+        .then(async results => {
+          for (let i = 0; i < results.length; i++) {
+            if (results[i].metadata.type && results[i].metadata.type === 2) {
+              console.log(results[i].metadata)
+            }
+          }
+        })
+    })
+  }
+
+  /**
    * Gets one certificate and it's owner
    *
    * @param {string} certificateId Certificate ID

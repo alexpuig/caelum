@@ -13,17 +13,12 @@ let pool
 
 // Main function.
 const load = async (did) => {
-    return new Promise((resolve) => {
+  return new Promise((resolve) => {
 
   const caelum = new Caelum(STORAGE, GOVERNANCE)
-  caelum.loadOrganization(did)
+  caelum.findOrganization('Caelum')
     .then(result => {
-      pool = result
-      return Promise.all([
-        pool.loadInformation(),
-        pool.loadApplications(),
-        pool.loadCertificates(),
-        pool.searchCertificates()])
+        console.log(result)
     })
     .then((result) => {
       console.log(pool)
@@ -37,8 +32,8 @@ const load = async (did) => {
 **/
 const main = async () => {
   utils.start()
-  const did = await utils.ask('Did')
-  await load(did)
+  const query = await utils.ask('Query')
+  await load(query)
   utils.end()
 }
 main()

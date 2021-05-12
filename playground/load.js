@@ -26,7 +26,6 @@ const load = async (did) => {
         pool.searchCertificates()])
     })
     .then((result) => {
-      console.log(pool)
       resolve()
     })
   })

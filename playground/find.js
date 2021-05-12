@@ -12,16 +12,13 @@ const STORAGE = 'https://api.bigchaindb.caelumapp.com/api/v1/'
 let pool
 
 // Main function.
-const load = async (did) => {
+const load = async (query) => {
   return new Promise((resolve) => {
 
   const caelum = new Caelum(STORAGE, GOVERNANCE)
-  caelum.findOrganization('Caelum')
-    .then(result => {
-        console.log(result)
-    })
+  caelum.findOrganization(query)
     .then((result) => {
-      console.log(pool)
+      console.log(result)
       resolve()
     })
   })

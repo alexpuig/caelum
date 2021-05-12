@@ -86,15 +86,24 @@ module.exports = class Caelum {
    * @param {string} query Query String
    */
   async findOrganization (query) {
-    return new Promise((resolve, reject) => {
-      BigchainDB.searchMetadata(this.storage, query)
-        .then(async results => {
-          for (let i = 0; i < results.length; i++) {
-            if (results[i].metadata.type && results[i].metadata.type === 2) {
-              console.log(results[i].metadata)
+    const dids = []
+    return new Promise((resolve) => {
+      if (query.length < 3) resolve([])
+      else {
+        BigchainDB.searchAsset(this.storage, query)
+          .then(async results => {
+            for (let i = 0; i < results.length; i++) {
+              if (results[i].data?.type === 1) {
+                dids.push({
+                  legalName: results[i].data.credential.legalName,
+                  taxID: results[i].data.credential.taxID,
+                  did: results[i].data.did
+                })
+              }
             }
-          }
-        })
+            resolve(dids)
+          })
+      }
     })
   }
 

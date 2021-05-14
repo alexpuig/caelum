@@ -1,11 +1,10 @@
 'use strict'
 const countries = require('../utils/countries')
-const Storage = require('../utils/bigchaindb')
+const Storage = require('../utils/arweave')
 const Blockchain = require('../utils/substrate')
-const W3C = require('../utils/w3c')
+const W3C = require('../utils/zenroom')
 const Crypto = require('../utils/crypto')
 const Application = require('./application')
-const Workflow = require('./workflow')
 const Achievement = require('./achievement')
 const Location = require('./location')
 const SDK = require('./sdk')
@@ -13,7 +12,7 @@ const axios = require('axios')
 
 // const CBOR = require('cbor-js')
 const TX_DID = 1
-const TX_INFO = 2
+// const TX_INFO = 2
 const TX_DIDDOC_LIST = 3
 const TX_DIDDOC = 4
 const TX_VERIFIED_LIST = 5
@@ -37,14 +36,16 @@ module.exports = class Organization {
    * Constructor. It creates an Organization object.
    */
   constructor (caelum, did = false) {
-    this.did = did
-    this.createTxId = false
     this.caelum = caelum
+    this.did = did
+    /*
+    this.createTxId = false
     this.nodes = {}
     this.applications = []
     this.certificates = []
     this.sdk = false
     this.parameters = false
+    */
   }
 
   /**
@@ -248,21 +249,19 @@ module.exports = class Organization {
   }
 
   /**
-   * Save Information : Verifiable Credential
+   * Save Information: User information
+   *
+   * @param {object} subject Organization Information (JSON) : address, contact, web...
    */
-  saveInformation (subject, pub = false) {
-    return new Promise((resolve) => {
-      Storage.getLastTransaction(this.caelum.storage, this.createTxId)
-        .then(lastTx => {
-          // TODO: Check is a valid public Key
-          const publicKey = ((pub === false) ? this.keys.publicKey : pub)
-          if (subject.location) subject.location = JSON.stringify(subject.location)
-          return Storage.transferAsset(this.caelum.storage, lastTx, this.keys, TX_INFO, subject, publicKey)
-        })
-        .then((tx) => {
-          resolve(tx)
-        })
-    })
+  async saveInformation (subject, type) {
+    // TODO: Create a Verifiable Credential with the information of the organization
+    const vc = subject
+
+    // TODO: the last index of the information
+    const index = 1
+
+    // Save the information to Storage
+    await this.caelum.storage.save(vc, this.did, type, index, this.keys.storage.key)
   }
 
   /**
@@ -620,7 +619,7 @@ module.exports = class Organization {
     if (this.did === false) {
       this.did = this.keys.governance.address
     }
-    this.keys.storage = await Storage.getKeys(false)
+    this.keys.storage = await this.caelum.storage.newKeys()
     this.keys.w3c = await W3C.newKeys(this.did)
   }
 
@@ -695,11 +694,6 @@ module.exports = class Organization {
     // assign new owner.
     // console.log('TODO : changeOwner??')
     // await this.caelum.governance.changeOwner(did, address)
-  }
-
-  getWorkflow (workflowId, stateId = 0, partyId = 1, actionId = 1) {
-    const wf = new Workflow(this, workflowId, stateId, partyId, actionId)
-    return wf
   }
 
   async export (password) {

@@ -19,6 +19,7 @@
     "@polkadot/types": "^2.7.1",
     "@polkadot/util": "^4.2.1",
     "@polkadot/util-crypto": "^4.2.1",
+    "arweave": "^1.10.13",
     "axios": "^0.21.1",
     "bigchaindb-driver": "^4.1.2",
     "bip39": "^3.0.3",
@@ -26,8 +27,10 @@
     "debug": "^4.3.1",
     "dotenv": "^8.2.0",
     "jsonld-signatures": "^6.0.0",
+    "testweave-sdk": "^0.2.2",
     "validator": "^13.5.2",
-    "vc-js": "^0.6.4"
+    "vc-js": "^0.6.4",
+    "zenroom": "^2.2.0-8a9cfc81"
   },
   "husky": {
     "hooks": {

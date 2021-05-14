@@ -1,38 +1,46 @@
 /* eslint-disable jest/no-try-expect */
 'use strict'
-
 const Caelum = require('.')
-let caelum
+// const GOVERNANCE = 'wss://substrate.tabit.caelumapp.com'
+const STORAGE = {
+  url: 'localhost',
+  port: 1984,
+  protocol: 'http',
+  testMode: true
+}
+let caelum, org
 test('Constructor', async () => {
-  caelum = new Caelum('http://localhost:9984/api/v1/')
-  expect(caelum).toBeDefined()
+  caelum = await Caelum.connect(STORAGE)
+  org = await caelum.newOrganization()
 
-  await caelum.newKeys()
-  expect(caelum.keys.mnemonic).toBeDefined()
-  expect(caelum.keys.seed).toBeDefined()
-  expect(caelum.keys.keypair).toBeDefined()
-  expect(caelum.keys.keypair.type).toBeDefined()
-  expect(caelum.keys.keypair.type).toEqual('Ed25519Keypair')
-  expect(caelum.keys.keypair.publicKey).toBeDefined()
-  expect(caelum.keys.keypair.privateKey).toBeDefined()
+  // Caelum.
+  expect(org.caelum.storage).toBeDefined()
+  expect(org.caelum.testMode).toEqual(true)
 
-  const seed = caelum.keys.seed
-  await caelum.loadKeys(caelum.keys.mnemonic)
-  expect(caelum.keys.mnemonic).toBeDefined()
-  expect(caelum.keys.seed).toBeDefined()
-  expect(caelum.keys.seed).toEqual(seed)
-  expect(caelum.keys.keypair).toBeDefined()
-  expect(caelum.keys.keypair.type).toBeDefined()
-  expect(caelum.keys.keypair.type).toEqual('Ed25519Keypair')
-  expect(caelum.keys.keypair.publicKey).toBeDefined()
-  expect(caelum.keys.keypair.privateKey).toBeDefined()
+  // Governance Keys. Substrate.
+  expect(org.keys.governance).toBeDefined()
+  expect(org.keys.governance.mnemonic).toBeDefined()
+  expect(org.keys.governance.address).toBeDefined()
+  expect(org.keys.governance.publicKey).toBeDefined()
+  expect(org.keys.governance.keyPair).toBeDefined()
 
-  process.env.DEV = 'false'
-  try {
-    // In production enviroments localhost is not allowed.
-    caelum = new Caelum('http://localhost:9984/api/v1/')
-  } catch (e) {
-    // eslint-disable-next-line jest/no-conditional-expect
-    expect(e.message).toEqual('Invalid URL http://localhost:9984/api/v1/')
-  }
+  // Storage Keys. Arweave.
+  expect(org.keys.storage).toBeDefined()
+  expect(org.keys.storage.key).toBeDefined()
+  expect(org.keys.storage.key.kty).toBeDefined()
+  expect(org.keys.storage.key.n).toBeDefined()
+  expect(org.keys.storage.key.d).toBeDefined()
+  expect(org.keys.storage.key.e).toBeDefined()
+
+  // W3C Keys. Zenroom.
+  expect(org.keys.w3c[org.did]).toBeDefined()
+  expect(org.keys.w3c[org.did].keypair).toBeDefined()
+  expect(org.keys.w3c[org.did].keypair.private_key).toBeDefined()
+  expect(org.keys.w3c[org.did].keypair.public_key).toBeDefined()
+})
+
+test('Save Org Information', async () => {
+  await org.saveInformation({ name: 'test' }, 'open')
+  expect(org.keys.w3c[org.did]).toBeDefined()
+  // const info = await org.getInformation()
 })

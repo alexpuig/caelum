@@ -1,12 +1,12 @@
 'use strict'
 require('dotenv').config()
-const v = require('validator')
+// const v = require('validator')
 const User = require('./lib/user')
 const Organization = require('./lib/organization')
 const Application = require('./lib/application')
 const BigchainDB = require('./utils/bigchaindb')
+const Storage = require('./utils/arweave')
 const Blockchain = require('./utils/substrate')
-const driver = require('bigchaindb-driver')
 const Crypto = require('./utils/crypto')
 
 /**
@@ -18,15 +18,32 @@ module.exports = class Caelum {
    *
    * @param {string} url BigchainDB server API
    */
-  constructor (storageUrl, governanceUrl) {
-    if (!v.isURL(storageUrl) || v.isURL(governanceUrl)) {
-      throw (new Error('Invalid URLs'))
-    } else {
-      this.storageUrl = storageUrl
-      this.storage = new driver.Connection(storageUrl)
-      this.governanceUrl = governanceUrl
-      this.governance = new Blockchain(governanceUrl)
-    }
+  constructor (testMode = false) {
+    this.testMode = testMode
+  }
+
+  /*
+   * @param {string} connectUrl Connection URL
+   * @param {integer} port Connection port
+   * @param {string} protocol Connection protocol
+   */
+  async connectGovernance (governanceUrl) {
+    this.governanceUrl = governanceUrl
+    this.governance = new Blockchain(this.governanceUrl)
+    await this.governance.connect()
+  }
+
+  /*
+   * @param {string} connectUrl Connection URL
+   * @param {integer} port Connection port
+   * @param {string} protocol Connection protocol
+   */
+  static async connect (storage) {
+    const caelum = new Caelum(storage.testMode)
+    caelum.storageUrl = storage.url
+    caelum.storage = new Storage(storage.testMode)
+    await caelum.storage.connect(storage.url, storage.port, storage.protocol, storage.testMode)
+    return caelum
   }
 
   /**
@@ -34,11 +51,10 @@ module.exports = class Caelum {
    *
    * @param {object} data Data can be a DID (string) or an object with {legalName and taxID}
    */
-  async newOrganization (did = false, newKeys = false) {
-    const organization = new Organization(this, did)
-    if (newKeys) await organization.newKeys()
+  async newOrganization () {
+    const organization = new Organization(this)
+    await organization.newKeys()
     return organization
-    // return organization.setSubject(subject)
   }
 
   /**

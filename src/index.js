@@ -93,7 +93,7 @@ module.exports = class Caelum {
         BigchainDB.searchAsset(this.storage, query)
           .then(async results => {
             for (let i = 0; i < results.length; i++) {
-              if (results[i].data?.type === 1) {
+              if (results[i].data.type === 1) {
                 dids.push({
                   legalName: results[i].data.credential.legalName,
                   taxID: results[i].data.credential.taxID,

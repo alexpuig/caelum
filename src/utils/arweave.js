@@ -22,7 +22,6 @@ module.exports = class Storage {
    * Connect to arweave node.
    */
   async connect (connectUrl = 'localhost', port = 1984, protocol = 'https') {
-    console.log(connectUrl, port, protocol)
     this.connectUrl = connectUrl
     this.port = port
     this.protocol = protocol
@@ -34,7 +33,6 @@ module.exports = class Storage {
 
     // TEST MODE.
     if (this.test) {
-      console.log('Init test')
       this.testWeave = await TestWeave.init(this.arweave)
     }
   }

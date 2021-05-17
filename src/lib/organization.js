@@ -661,7 +661,7 @@ module.exports = class Organization {
     const signSubject = { ...subject }
     signSubject.sphere = (['over18', 'oidc'].includes(capacity) ? 'personal' : 'professional')
     signSubject.capacity = capacity
-    const result = await W3C.signMember(this.did, peerDid, signSubject, this.keys.w3c, this.didDocument)
+    const result = await W3C.signMember(this.did, peerDid, signSubject, this.keys.w3c)
     return result
   }
 

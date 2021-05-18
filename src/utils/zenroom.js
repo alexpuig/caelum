@@ -5,10 +5,10 @@ const { zencode_exec } = require('zenroom')
 
 const zexecute = (zencode, data = {}, keys = {}) => {
   return new Promise((resolve, reject) => {
-    console.log(zencode, data, keys)
+    // console.log(zencode, data, keys)
     zencode_exec(zencode, {
       data: JSON.stringify(data),
-      keys: JSON.stringify(keys),
+      key: JSON.stringify(keys),
       conf: 'color=0, debug=0'
     })
       .then((result) => {
@@ -80,8 +80,10 @@ module.exports = class W3C {
         When I sign the verifiable credential named 'my-vc'
         When I set the verification method in 'my-vc' to 'PublicKeyUrl'
         Then print 'my-vc' as 'string'`
-      console.log(zencode, key)
-      zexecute(zencode, credential, key)
+      const zkeys = key
+      zkeys[issuer].PublicKeyUrl = 'https://apiroom.net/api/dyneorg/w3c-public-key'
+      // console.log(zencode, key)
+      zexecute(zencode, credential, zkeys)
         .then((result) => {
           console.log(result)
           resolve(result)

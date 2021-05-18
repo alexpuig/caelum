@@ -13,7 +13,7 @@ const main = async () => {
   console.log(address)
   const testWeave = await TestWeave.init(arweave)
   const data = JSON.stringify({ name: 'Alex' })
-  const dataTransaction = await arweave.createTransaction({ data }, testWeave.rootJWK)
+//  const dataTransaction = await arweave.createTransaction({ data }, testWeave.rootJWK)
 
   await arweave.transactions.sign(dataTransaction, testWeave.rootJWK)
   const statusBeforePost = await arweave.transactions.getStatus(dataTransaction.id)
@@ -22,6 +22,7 @@ const main = async () => {
   const statusAfterPost = await arweave.transactions.getStatus(dataTransaction.id)
   console.log(statusAfterPost) // this will return 202
   await testWeave.mine()
+  console.log('mined')
   const statusAfterMine = await arweave.transactions.getStatus(dataTransaction.id)
   console.log(statusAfterMine) // this will return 200
 }

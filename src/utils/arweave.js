@@ -50,6 +50,8 @@ module.exports = class Storage {
   async save (vc, did, type, index, key) {
     const txData = JSON.stringify(vc)
     console.log('save', txData, type, index, did, this.testWeave.rootJWK)
+    // const data = JSON.stringify({ name: 'Alex' })
+    // const dataTransaction = await this.arweave.createTransaction({ data }, this.testWeave.rootJWK)
     let transaction = await this.arweave.createTransaction({ data: '<html><head><meta charset="UTF-8"><title>Hello world!</title></head><body></body></html>' }, this.testWeave.rootJWK)
     transaction = await this.arweave.createTransaction({ data: 'Hello world' }, key)
     console.log('save2')

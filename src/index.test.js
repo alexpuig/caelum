@@ -42,11 +42,14 @@ test('Constructor', async () => {
 test('Sign membership', async () => {
   const peerDid = 'ABC'
   const vc = await org.addMember(peerDid, 'admin')
-  console.log(vc)
+  // console.log(vc)
+  // const vc = 'hello'
+  expect(vc).toBeDefined()
 })
 
 test('Save Org Information', async () => {
-  // await org.saveInformation({ name: 'test' }, 'open')
+  await org.saveInformation({ name: 'test' }, 'open')
+  expect(org.did).toBeDefined()
   // expect(org.keys.w3c[org.did]).toBeDefined()
   // const info = await org.getInformation()
 })

@@ -30,7 +30,7 @@
     "testweave-sdk": "^0.2.2",
     "validator": "^13.5.2",
     "vc-js": "^0.6.4",
-    "zenroom": "^2.2.0-8a9cfc81"
+    "zenroom": "^2.2.0-b77c4de8"
   },
   "husky": {
     "hooks": {

@@ -6,6 +6,9 @@ const { zencode_exec } = require('zenroom')
 const zexecute = (zencode, data = {}, keys = {}) => {
   return new Promise((resolve, reject) => {
     // console.log(zencode, data, keys)
+    const zkeys = JSON.stringify(keys)
+    const zdata = JSON.stringify(data)
+    console.log(zencode, zkeys, zdata)
     zencode_exec(zencode, {
       data: JSON.stringify(data),
       key: JSON.stringify(keys),

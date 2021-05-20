@@ -38,17 +38,34 @@ test('Constructor', async () => {
   expect(org.keys.w3c[org.did].keypair.private_key).toBeDefined()
   expect(org.keys.w3c[org.did].keypair.public_key).toBeDefined()
 })
+test('Authorised Capabilities', async () => {
+  const credential = org.newAuthorisedCapability('ABC', 1, 'admin')
+  expect(credential).toBeDefined()
+  expect(credential.issuanceDate).toBeDefined()
+  expect(credential.holder).toEqual('ABC')
+  expect(credential.issuer).toEqual('did:caelum:' + org.did)
+  expect(credential.id).toEqual('did:caelum:' + org.did + '#issued')
+  expect(credential.credentialSubject.id).toEqual('did:caelum:' + org.did + '#issued-1')
+  expect(credential.credentialSubject.capability.type).toEqual('admin')
+  expect(credential.credentialSubject.capability.sphere).toEqual('professional')
+  expect(credential.credentialSubject.capability.location).toBeUndefined()
+})
 
 test('Sign membership', async () => {
-  const peerDid = 'ABC'
-  const vc = await org.addMember(peerDid, 'admin')
-  // console.log(vc)
-  // const vc = 'hello'
+  const credential = org.newAuthorisedCapability('ABC', 1, 'admin')
+  const vc = await org.signCredential(credential)
   expect(vc).toBeDefined()
+  expect(vc.credentialSubject).toBeDefined()
+  expect(vc.proof).toBeDefined()
+  let result = await org.verifyCredential(vc)
+  expect(result).toEqual(true)
+  vc.holder = 'HHA'
+  result = await org.verifyCredential(vc)
+  expect(result).toEqual(false)
 })
 
 test('Save Org Information', async () => {
-  await org.saveInformation({ name: 'test' }, 'open')
+  // await org.saveInformation({ name: 'test' }, 'open')
   expect(org.did).toBeDefined()
   // expect(org.keys.w3c[org.did]).toBeDefined()
   // const info = await org.getInformation()

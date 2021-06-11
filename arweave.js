@@ -3,15 +3,17 @@ const Arweave = require('arweave')
 
 const main = async () => {
   const arweave = Arweave.init({
-    host: '127.0.0.1',
+    host: '127.18.0.1',
     port: 1984,
-    protocol: 'http'
+    protocol: 'http',
+    timeout: 20000,
+    logging: false
   })
+  const testWeave = await TestWeave.init(arweave)
 
   const key = await arweave.wallets.generate()
   const address = await arweave.wallets.jwkToAddress(key)
   console.log(address)
-  const testWeave = await TestWeave.init(arweave)
   const data = JSON.stringify({ name: 'Alex' })
   const dataTransaction = await arweave.createTransaction({ data }, testWeave.rootJWK)
 

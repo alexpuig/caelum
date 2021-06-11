@@ -9,6 +9,7 @@ const STORAGE = {
   testMode: true
 }
 let caelum, org
+
 test('Constructor', async () => {
   caelum = await Caelum.connect(STORAGE)
   org = await caelum.newOrganization()
@@ -38,6 +39,7 @@ test('Constructor', async () => {
   expect(org.keys.w3c[org.did].keypair.private_key).toBeDefined()
   expect(org.keys.w3c[org.did].keypair.public_key).toBeDefined()
 })
+
 test('Authorised Capabilities', async () => {
   const credential = org.newAuthorisedCapability('ABC', 1, 'admin')
   expect(credential).toBeDefined()

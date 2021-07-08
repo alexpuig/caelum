@@ -6,7 +6,7 @@ module.exports = {
   extends: [
     'plugin:jest/recommended',
     'plugin:jest/style',
-    'standard'
+    'airbnb'
   ],
   globals: {
     Atomics: 'readonly',

@@ -1,5 +1,3 @@
-'use strict'
-
 class Utils {
   /**
    * Converts Hex to Base64
@@ -7,8 +5,8 @@ class Utils {
    * @param {string} str source
    * @returns {object} Base64 encoded from Hex
    */
-  static hexToBase64 (str) {
-    return Buffer.from(str, 'hex').toString('utf8')
+  static hexToBase64(str) {
+    return Buffer.from(str, 'hex').toString('utf8');
   }
 
   /**
@@ -17,8 +15,8 @@ class Utils {
    * @param {string} str source
    * @returns {object} Hex encoded from Base64
    */
-  static base64ToHex (str) {
-    return Buffer.from(str, 'utf8').toString('hex')
+  static base64ToHex(str) {
+    return Buffer.from(str, 'utf8').toString('hex');
   }
 
   /**
@@ -27,10 +25,10 @@ class Utils {
    * @param {string} str source
    * @returns {object} UTF8 Array
    */
-  static toUTF8Array (str) {
-    const buffer = Buffer.from(str, 'utf8')
-    return Array.prototype.slice.call(buffer, 0)
+  static toUTF8Array(str) {
+    const buffer = Buffer.from(str, 'utf8');
+    return Array.prototype.slice.call(buffer, 0);
   }
 }
 
-module.exports = Utils
+module.exports = Utils;

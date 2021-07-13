@@ -1,3 +1,4 @@
+require('dotenv').config();
 const GOVERNANCE = 'ws://127.0.0.1:9944';
 const Caelum = require('../src/index');
 
@@ -8,8 +9,8 @@ const init = async () => {
   await caelum.connect();
 
   // Connect as root.
-  const root = await caelum.getOrganizationFromSeed('//Alice');
-  await root.registerOrganization('CaelumLabs', 'B111', 2000);
+  const org = await caelum.getOrganizationFromSeed(process.env.SEED);
+  console.log(org.data)
 
   // Disconnect.
   await caelum.disconnect();

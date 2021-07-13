@@ -27,6 +27,7 @@ module.exports = class Caelum {
     this.blockchain.setKeyring(seed);
     const did = await this.blockchain.getDidFromOwner();
     const org = new Organization(this.blockchain, did);
+    await org.getData();
     return org;
   }
 

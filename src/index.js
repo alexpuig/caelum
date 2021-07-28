@@ -3,7 +3,7 @@ const Organization = require('./lib/organization');
 const Blockchain = require('./utils/substrate');
 
 /**
- * Caelum main lin
+ * Caelum main library
  */
 module.exports = class Caelum {
   /**
@@ -21,6 +21,33 @@ module.exports = class Caelum {
 
   async disconnect() {
     await this.blockchain.disconnect();
+  }
+
+  async newKeys() {
+    const keys = await this.blockchain.newKeys();
+    return keys;
+  }
+
+  async sendGas(mnemonic, addr) {
+    this.blockchain.setKeyring(mnemonic);
+    console.log('Send gas to ' + addr)
+    await this.blockchain.transferTokens(addr, 3000000000000000);
+    return await this.blockchain.addrState(addr)
+  }
+
+  async registerToken(mnemonic, tokenId, tokenName, tokenSymbol) {
+    const admin = this.blockchain.setKeyring(mnemonic);
+    // Create a new token
+    console.log(admin);
+    const amount = await this.blockchain.addrState(admin.address);
+    console.log(amount);
+    let result = await this.blockchain.createToken(tokenId, admin, 100);
+    // result = await this.blockchain.setTokenMetadata(tokenId, tokenName, tokenSymbol, 0);
+  }
+
+  async getTokenDetails(tokenId) {
+    const tokenDetails = await this.blockchain.getTokenDetails(tokenId);
+    return tokenDetails;
   }
 
   async getOrganizationFromSeed(seed) {

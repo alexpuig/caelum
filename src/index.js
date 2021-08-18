@@ -35,14 +35,16 @@ module.exports = class Caelum {
     return await this.blockchain.addrState(addr)
   }
 
-  async registerToken(mnemonic, tokenId, tokenName, tokenSymbol) {
+  async registerToken(mnemonic, tokenId, tokenName, tokenSymbol, mint) {
     const admin = this.blockchain.setKeyring(mnemonic);
     // Create a new token
-    console.log(admin);
     const amount = await this.blockchain.addrState(admin.address);
-    console.log(amount);
-    let result = await this.blockchain.createToken(tokenId, admin, 100);
-    // result = await this.blockchain.setTokenMetadata(tokenId, tokenName, tokenSymbol, 0);
+    let result = await this.blockchain.createToken(tokenId, admin);
+    if (!result) throw (new Error('Could not register token'));
+    result = await this.blockchain.setTokenMetadata(tokenId, tokenName, tokenSymbol );
+    if (!result) throw (new Error('Could not set Token Metadata'));
+    result = await blockchain.mintToken(tokenid, aliceAddr, mint)
+    if (!result) throw (new Error('Could not Mint initial tokens'));
   }
 
   async getTokenDetails(tokenId) {

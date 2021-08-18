@@ -1,16 +1,18 @@
 /* eslint-disable no-async-promise-executor */
-const debug = require('debug')('did:debug:sub');
-const { Keyring } = require('@polkadot/api');
-const { mnemonicGenerate, mnemonicValidate } = require('@polkadot/util-crypto');
+'use strict'
 const { cryptoWaitReady } = require('@polkadot/util-crypto');
-const { hexToString } = require('@polkadot/util');
-const BlockchainInterface = require('./blockchain');
-const Executor = require('./executor');
-const DID = require('./dids');
-const Balance = require('./balance');
-const Process = require('./process');
-const Tokens = require('./fungibles');
-const ClassNFTs = require('./classnfts');
+const { mnemonicGenerate, mnemonicValidate } = require('@polkadot/util-crypto');
+const BlockchainInterface = require('./blockchain')
+const { Keyring } = require('@polkadot/api')
+const Executor = require('./executor')
+const DID = require('./dids')
+const Balance = require('./balance')
+const Process = require('./process')
+const Tokens = require('./fungibles')
+const ClassNFTs = require('./classnfts')
+
+// Debug
+var debug = require('debug')('did:debug:sub')
 
 /**
  * Javascript Class to interact with the Blockchain.
@@ -21,16 +23,16 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    *
    * @param {string} server Web Sockets Provider, e.g. 'ws://127.0.0.1:9944/'
    */
-  constructor(server) {
-    super();
+  constructor (server) {
+    super()
     // Initialize all needed classes
-    this.exec = new Executor(server);
-    this.dids = new DID();
-    this.balance = new Balance();
-    this.process = new Process();
-    this.tokens = new Tokens();
-    this.classNFTs = new ClassNFTs();
-    this.keypair = {};
+    this.exec = new Executor(server)
+    this.dids = new DID()
+    this.balance = new Balance()
+    this.process = new Process()
+    this.tokens = new Tokens()
+    this.classNFTs = new ClassNFTs()
+    this.keypair = {}
   }
 
   // Blockchain execution related functions
@@ -40,19 +42,19 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    *
    * @returns {boolean} success
    */
-  async connect() {
-    const result = await this.exec.connect();
+  async connect () {
+    const result = await this.exec.connect()
     if (result === undefined || result === null) {
-      return false;
+      return false
     }
-    return true;
+    return true
   }
 
   /**
    * Disconnect from Blockchain.
    */
-  disconnect() {
-    this.exec.disconnect();
+  disconnect () {
+    this.exec.disconnect()
   }
 
   /**
@@ -61,8 +63,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    *
    * @returns {Array} array of CIDs
    */
-  async getMetadata() {
-    return this.exec.getMetadata();
+  async getMetadata () {
+    return this.exec.getMetadata()
   }
 
   // Keys related functions
@@ -73,22 +75,16 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} seed Seed (12, 15, 24-digit mnemonic, or //Alice)
    * @returns {string} address
    */
-  setKeyring(seed) {
-    const keyring = new Keyring({ type: 'sr25519' });
-    this.keypair = keyring.addFromUri(seed);
-    debug(`Keyring added: ${this.keypair.address}`);
-    return this.keypair.address;
+  setKeyring (seed) {
+    const keyring = new Keyring({ type: 'sr25519' })
+    this.keypair = keyring.addFromUri(seed)
+    debug('Keyring added:' + this.keypair.address)
+    return this.keypair.address
   }
 
-  /**
-   * Gets the keyring
-   *
-   * @param {string} seed Seed
-   * @returns {object} keyring
-   */
-  getKeyring(seed) {
-    const keyring = new Keyring({ type: 'sr25519' });
-    return keyring.addFromUri(seed);
+  getKeyring (seed) {
+    const keyring = new Keyring({ type: 'sr25519' })
+    return keyring.addFromUri(seed)
   }
 
   /**
@@ -97,16 +93,16 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} seed Seed (12, 15, 24-digit mnemonic, or //Alice)
    * @returns {string} address
    */
-  getAddress(seed = null) {
+  getAddress (seed = null) {
     if (seed == null) {
-      return this.keypair.address;
+      return this.keypair.address
     }
-    const keyring = new Keyring({ type: 'sr25519' });
-    const keypair = keyring.addFromUri(seed);
-    return keypair.address;
+    const keyring = new Keyring({ type: 'sr25519' })
+    const keypair = keyring.addFromUri(seed)
+    return keypair.address
   }
 
-  /**
+    /**
    * New Blockchain KeyPair.
    *
    * @returns {object} Key pair
@@ -138,8 +134,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} address Address to send tokens to
    * @returns {*} balance and nonce
    */
-  async addrState(address = false) {
-    return this.balance.addrState(this.exec, this.keypair, address);
+  async addrState (address = false) {
+    return this.balance.addrState(this.exec, this.keypair, address)
   }
 
   /**
@@ -149,8 +145,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {*} amount Amount of tokens
    * @returns {Promise} of sending tokens
    */
-  async transferTokens(addrTo, amount) {
-    return this.balance.transferTokens(this.exec, this.keypair, addrTo, amount);
+  async transferTokens (addrTo, amount) {
+    return this.balance.transferTokens(this.exec, this.keypair, addrTo, amount)
   }
 
   /**
@@ -160,8 +156,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {*} amount Amount of tokens
    * @returns {Promise} of sending tokens
    */
-  async transferTokensNoFees(addrTo, amount) {
-    return this.balance.transferTokensNoFees(this.exec, this.keypair, addrTo, amount);
+  async transferTokensNoFees (addrTo, amount) {
+    return this.balance.transferTokensNoFees(this.exec, this.keypair, addrTo, amount)
   }
 
   /**
@@ -170,16 +166,17 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} addrTo Address to send tokens to
    * @returns {Promise} of sending tokens
    */
-  async transferAllTokens(addrTo) {
-    return this.balance.transferAllTokens(this.exec, this.keypair, addrTo);
+  async transferAllTokens (addrTo) {
+    return this.balance.transferAllTokens(this.exec, this.keypair, addrTo)
   }
+
 
   /**
    * Transfer All Tokens
    *
    */
-  async createOwnAdminToken(id, admin, minBalance) {
-    return this.tokens.createOwnAdminToken(this.exec, this.keypair, id, admin, minBalance);
+  async createOwnAdminToken (id, admin, minBalance) {
+    return this.tokens.createOwnAdminToken(this.exec, this.keypair, id, admin, minBalance)
   }
 
   // DID and CID functions
@@ -194,41 +191,34 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} taxId Organization tax id
    * @returns {Promise} of transaction
    */
-  async registerDid(accountTo, level, didType, legalName, taxId) {
-    return this.dids.registerDid(
-      this.exec,
-      this.keypair,
-      accountTo,
-      level,
-      didType,
-      legalName,
-      taxId,
-    );
+  async registerDid (accountTo, level, didType, legalName, taxId) {
+    return this.dids.registerDid(this.exec, this.keypair, accountTo, level, didType, legalName, taxId)
   }
 
   /**
-   * Rotate Key : changes the current key for a DID
+   * Registers aa Arweave storage Address (Vec<u8>)for a DID
+   *
+   * @param {string} did DID
+   * @param {object} storageAddress Arweave storage address (Vec<u8>)
+   * @returns {Promise} Result of the transaction
+   */
+  async setStorageAddress (did, storageAddress) {
+    return this.dids.setStorageAddress(this.exec, this.keypair, did, storageAddress)
+  }
+
+  /**
+   * Set new key : changes the current key for a DID
+   * If did == null or undefined adds the new key to the sender
+   * If did has value moves the key from sender to DID receiver
    * Assumes Key Type = 0
    *
-   * @param {string} did DID
-   * @param {object} pubKey Public Key to be rotated (Vec<u8>)
+   * @param {object} pubKey Public Key to be created/rotated (string)
    * @param {number} typ Public Key type. Defaults to zero
-   * @returns {Promise} Result of the transaction
-   */
-  async rotateKey(did, pubKey, typ = 0) {
-    return this.dids.rotateKey(this.exec, this.keypair, did, pubKey, typ);
-  }
-
-  /**
-   * Rotate Key Type: changes the current key for a specific type for a DID
-   *
    * @param {string} did DID
-   * @param {object} pubKey Public Key to be rotated (Vec<u8>)
-   * @param {number} typ Public Key type
    * @returns {Promise} Result of the transaction
    */
-  async rotateKeyType(did, pubKey, typ) {
-    return this.dids.rotateKeyType(this.exec, this.keypair, did, pubKey, typ);
+  async setKey (pubKey, did = null, typ = 0) {
+    return this.dids.setKey(this.exec, this.keypair, did, pubKey, typ)
   }
 
   /**
@@ -238,19 +228,21 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} newOwner New owner's Account (AccountId)
    * @returns {Promise} Result of the transaction
    */
-  async changeOwner(did, newOwner) {
-    return this.dids.changeOwner(this.exec, this.keypair, did, newOwner);
+  async changeOwner (did, newOwner) {
+    return this.dids.changeOwner(this.exec, this.keypair, did, newOwner)
   }
 
   /**
-   * Assign a Credential for a DID
+   * Assign a Hash/Credential for a DID
    *
    * @param {string} did DID
    * @param {object} credential Credential Hash (Vec<u8>)
+   * @param {object} certificate Certificate from which hash is generated
+   * @param {object} typ Type
    * @returns {Promise} Result of the transaction
    */
-  async assignCredential(did, credential) {
-    return this.dids.assignCredential(this.exec, this.keypair, did, credential);
+  async putHash (did, credential, certificate, typ) {
+    return this.dids.putHash(this.exec, this.keypair, did, credential, certificate, typ)
   }
 
   /**
@@ -262,8 +254,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} taxId New Tax Id (if null will not be changed)
    * @returns {Promise} Result of the transaction
    */
-  async changeLegalNameOrTaxId(did, legalName, taxId) {
-    return this.dids.changeLegalNameOrTaxId(this.exec, this.keypair, did, legalName, taxId);
+  async changeLegalNameOrTaxId (did, legalName, taxId) {
+    return this.dids.changeLegalNameOrTaxId(this.exec, this.keypair, did, legalName, taxId)
   }
 
   /**
@@ -282,37 +274,37 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * endpoint New endpoint (if null or undefined will not be changed)
    * @returns {Promise} Result of the transaction
    */
-  async changeInfo(did, info) {
-    if (info.name === undefined) { info.name = null; }
-    if (info.address === undefined) { info.address = null; }
-    if (info.postalCode === undefined) { info.postalCode = null; }
-    if (info.city === undefined) { info.city = null; }
-    if (info.countryCode === undefined) { info.countryCode = null; }
-    if (info.phoneNumber === undefined) { info.phoneNumber = null; }
-    if (info.website === undefined) { info.website = null; }
-    if (info.endpoint === undefined) { info.endpoint = null; }
-    return this.dids.changeInfo(this.exec,
-      this.keypair,
-      did,
-      info.name,
-      info.address,
-      info.postalCode,
-      info.city,
-      info.countryCode,
-      info.phoneNumber,
-      info.website,
-      info.endpoint);
+  async updateInfo (did, info) {
+    if (info.name === undefined) { info.name = null }
+    if (info.address === undefined) { info.address = null }
+    if (info.postalCode === undefined) { info.postalCode = null }
+    if (info.city === undefined) { info.city = null }
+    if (info.countryCode === undefined) { info.countryCode = null }
+    if (info.phoneNumber === undefined) { info.phoneNumber = null }
+    if (info.website === undefined) { info.website = null }
+    if (info.endpoint === undefined) { info.endpoint = null }
+    return this.dids.updateInfo(this.exec,
+                                this.keypair,
+                                did,
+                                info.name,
+                                info.address,
+                                info.postalCode,
+                                info.city,
+                                info.countryCode,
+                                info.phoneNumber,
+                                info.website,
+                                info.endpoint)
   }
 
   /**
-   * Remove a Credential for a DID
+   * Revoke a Credential for a DID
    *
    * @param {string} did DID
    * @param {object} credential Credential Hash (Vec<u8>)
    * @returns {Promise} Result of the transaction
    */
-  async removeCredential(did, credential) {
-    return this.dids.removeCredential(this.exec, this.keypair, did, credential);
+  async revokeHash (did, credential) {
+    return this.dids.revokeHash(this.exec, this.keypair, did, credential)
   }
 
   /**
@@ -321,21 +313,27 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} did DID
    * @returns {Promise} Result of the transaction
    */
-  async removeDid(did) {
-    return this.dids.removeDid(this.exec, this.keypair, did);
+  async removeDid (did) {
+    return this.dids.removeDid(this.exec, this.keypair, did)
   }
 
   /**
-   * Get Public Key from Did.
+   * Get DID Data.
    *
    * @param {string} did DID
    * @returns {Promise} of Transaction
    */
-  async getDidData(did) {
-    const data = await this.dids.getDidData(this.exec, did);
-    data.legal_name = hexToString(data.legal_name);
-    data.tax_id = hexToString(data.tax_id);
-    return data;
+  async getDidData (did) {
+    return this.dids.getDidData(this.exec, did)
+  }
+
+  /**
+   * Get all DID Data.
+   *
+   * @returns {Promise} of Transaction
+   */
+  async getAllDidData () {
+    return this.dids.getAllDidData(this.exec)
   }
 
   /**
@@ -344,8 +342,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} did DID
    * @returns {string} Public Key in hex format
    */
-  async getOwnerFromDid(did) {
-    return this.dids.getOwnerFromDid(this.exec, did);
+  async getOwnerFromDid (did) {
+    return this.dids.getOwnerFromDid(this.exec, did)
   }
 
   /**
@@ -354,9 +352,9 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} owner DID
    * @returns {string} DID
    */
-  async getDidFromOwner(owner = null) {
-    const execOwner = owner == null ? this.keypair.address : owner;
-    return this.dids.getDidFromOwner(this.exec, execOwner);
+  async getDidFromOwner (owner = null) {
+    const execOwner = owner == null ? this.keypair.address : owner
+    return this.dids.getDidFromOwner(this.exec, execOwner)
   }
 
   /**
@@ -367,8 +365,20 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} typ Public Key type
    * @returns {string} Actual Key
    */
-  async getActualDidKey(did, typ = 0) {
-    return this.dids.getActualDidKey(this.exec, did, typ);
+  async getActualDidKey (did, typ = 0) {
+    return this.dids.getActualDidKey(this.exec, this.keypair, did, typ)
+  }
+
+  /**
+   * Get Public Key from Did.
+   * Assumes Key Type = 0
+   *
+   * @param {string} did DID
+   * @param {number} typ Public Key type
+   * @returns {string} Actual Key
+   */
+  async getKey (did, typ = 0) {
+    return this.dids.getActualDidKey(this.exec, this.keypair, did, typ)
   }
 
   /**
@@ -378,89 +388,103 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} typ Public Key type
    * @returns {string} Actual Key
    */
-  async getActualDidKeyType(did, typ) {
-    return this.dids.getActualDidKeyType(this.exec, did, typ);
+  async getActualDidKeyType (did, typ) {
+    return this.dids.getActualDidKeyType(this.exec, this.keypair, did, typ)
   }
 
   /**
-   * Retrieves the Hash of a Did Document for a DID
+   * Get Public Key of specific type from Did.
+   *
+   * @param {string} did DID
+   * @param {number} typ Public Key type
+   * @returns {string} Actual Key
+   */
+  async getKeyType (did, typ) {
+    return this.dids.getActualDidKeyType(this.exec, this.keypair, did, typ)
+  }
+
+  /**
+   * Retrieves the Hash of a Storage Address for a DID
    *
    * @param {string} did DID
    * @returns {string} hash in Base64 format
    */
-  async getDidDocHash(did) {
-    return this.dids.getDidDocHash(this.exec, did);
+  async getStorageAddressHash (did) {
+    return this.dids.getStorageAddressHash(this.exec, did)
   }
 
   /**
-   * Adds a CID.
-   * DID to assign the CID. By default is Null and the CID
+   * Adds a Certificate.
+   * DID to assign the CID. By default is Null and the Certificate ID
    * will be assigned to the DID of the sender transaction account
    *
    * @param {string} cid CID
+   * @param {string} title Certicate's title
+   * @param {string} urlCertificate Certificate's URL
+   * @param {string} urlImage Certificate's URL image
+   * @param {string} cidType Certificate's type
    * @param {string} did DID to assign the new CID (Either null or Must exists)
-   * @param {number} max_hids DID to assign the new CID (Must exists)
    * @returns {Promise} of transaction
    */
-  async addCid(cid, did = null, max_hids = 0) {
-    return this.dids.addCid(this.exec, this.keypair, cid, did, max_hids);
+  async addCertificate (cid, title = null, urlCertificate = null, urlImage = null, cidType = null, did = null) {
+    return this.dids.addCertificate(this.exec, this.keypair, cid, title, urlCertificate, urlImage, cidType, did)
   }
 
   /**
-   * Removes a CID.
-   * DID of the CIDs owner. By default is Null and the CID
+   * Revokes a Certificate.
+   * DID of the Certificate owner. By default is Null and the CID
    * must be assigned to the DID of the sender transaction account
    *
    * @param {string} cid CID
    * @param {string} did DID of the CIDs owner if providede
    * @returns {Promise} of transaction
    */
-  async deleteCid(cid, did = null) {
-    return this.dids.deleteCid(this.exec, this.keypair, cid, did);
+  async revokeCertificate (cid, did = null) {
+    return this.dids.revokeCertificate(this.exec, this.keypair, cid, did)
   }
 
   /**
-   * Get all CIDs.
-   * Get the whole CIDs collection, including deleted.
+   * Get all Certificates.
+   * Get the whole Certificates collection, including revoked.
    *
-   * @returns {Array} array of CIDs
+   * @returns {Array} array of Certificates
    */
-  async getCIDs() {
-    return this.dids.getCIDs(this.exec);
+  async getCertificates () {
+    return this.dids.getCertificates(this.exec)
   }
 
   /**
-   * Get all valid CIDs.
-   * Get all CIDs that are not deleted.
+   * Get all valid Certificates.
+   * Get all Certificates that are not revoked.
    *
-   * @returns {Array} array of CIDs
+   * @returns {Array} array of Certificates
    */
-  async getValidCIDs() {
-    return this.dids.getValidCIDs(this.exec);
+  async getValidCertificates () {
+    return this.dids.getValidCertificates(this.exec)
   }
 
   /**
-   * Get CID by key.
-   * Get CID data is key exists, else return null.
+   * Get Certificate by key.
+   * Get Certificate data if key exists, else return null.
    * Because is an ordered array, we use a binary search
    *
-   * @param {string} cid CID
+   * @param {string} cid Certificate ID
    * @returns {string} CID struct or null
    */
-  async getCIDByKey(cid) {
-    return this.dids.getCIDByKey(this.exec, cid);
+  async getCertificateByKey (cid) {
+    return this.dids.getCertificateByKey(this.exec, cid)
   }
 
   /**
-   * Get all valid CIDs that belongs to a DID.
-   * Get a collections of CID data that belongs to a DID.
+   * Get all valid Certificates that belongs to a DID.
+   * Get a collections of Certificate data that belongs to a DID.
    * (Can be empty)
    *
    * @param {string} did DID to search
    * @returns {object} CID array
    */
-  async getCIDsByDID(did) {
-    return this.dids.getCIDsByDID(this.exec, did);
+  async getCertificatesByDID (did) {
+    return this.dids.getCertificatesByDID(this.exec, did)
   }
 
   /**
@@ -474,8 +498,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} hash Process node hash
    * @returns {Promise} of transaction
    */
-  async startProcess(did, hash) {
-    return this.process.startProcess(this.exec, this.keypair, did, hash);
+  async startProcess (did, hash) {
+    return this.process.startProcess(this.exec, this.keypair, did, hash)
   }
 
   /**
@@ -490,8 +514,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} parentHash Has of the parent Process or SubProcess
    * @returns {Promise} of transaction
    */
-  async startSubprocess(did, hash, parentHash) {
-    return this.process.startSubprocess(this.exec, this.keypair, did, hash, parentHash);
+  async startSubprocess (did, hash, parentHash) {
+    return this.process.startSubprocess(this.exec, this.keypair, did, hash, parentHash)
   }
 
   /**
@@ -506,8 +530,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} parentHash Has of the parent Process or SubProcess
    * @returns {Promise} of transaction
    */
-  async startStep(did, hash, parentHash) {
-    return this.process.startStep(this.exec, this.keypair, did, hash, parentHash);
+  async startStep (did, hash, parentHash) {
+    return this.process.startStep(this.exec, this.keypair, did, hash, parentHash)
   }
 
   /**
@@ -522,8 +546,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} parentHash Has of the parent Process or SubProcess
    * @returns {Promise} of transaction
    */
-  async addDocument(did, hash, parentHash) {
-    return this.process.addDocument(this.exec, this.keypair, did, hash, parentHash);
+  async addDocument (did, hash, parentHash) {
+    return this.process.addDocument(this.exec, this.keypair, did, hash, parentHash)
   }
 
   /**
@@ -538,28 +562,53 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} parentDocHash Has of the parent Process or SubProcess
    * @returns {Promise} of transaction
    */
-  async addAttachment(did, hash, parentDocHash) {
-    return this.process.addAttachment(this.exec, this.keypair, did, hash, parentDocHash);
+  async addAttachment (did, hash, parentDocHash) {
+    return this.process.addAttachment(this.exec, this.keypair, did, hash, parentDocHash)
   }
 
   /**
-   * Set the Token ID and cost for processes.
+   * Set the same Token ID and cost for processes.
    *
    * @param {number} tokenid Token's Id
    * @param {number} cost Cost to be burned by process node
    * @returns {Promise} of transaction
    */
-  async setTokenAndCostForProcess(tokenid, cost) {
-    return this.process.setTokenAndCostForProcess(this.exec, this.keypair, tokenid, cost);
+  async setTokenAndCostForProcess (tokenid, cost) {
+    const tokenIdAndCost = {
+      startProcess: [tokenid, cost],
+      startSubprocess: [tokenid, cost],
+      startStep: [tokenid, cost],
+      addDocument: [tokenid, cost],
+      addAttachment: [tokenid, cost],
+      pathTo: [tokenid, cost],
+      getFullProcessTree: [tokenid, cost],
+      revokeNode: [tokenid, cost]
+    }
+    return this.setTokensAndCosts(tokenIdAndCost)
   }
 
   /**
-   * Get the Token id and cost of process data
+   * Set the same Token ID and cost for DIDs and CIDs.
    *
+   * @param {number} tokenid Token's Id
+   * @param {number} cost Cost to be burned by process node
    * @returns {Promise} of transaction
    */
-  async getTokenIdAndCostProcessData() {
-    return this.process.getTokenIdAndCostProcessData(this.exec);
+  async setTokenAndCostForDIDsAndCIDs (tokenid, cost) {
+    const tokenIdAndCost = {
+      registerDid: [tokenid, cost],
+      setStorageAddress: [tokenid, cost],
+      setKey: [tokenid, cost],
+      putHash: [tokenid, cost],
+      changeLegalNameOrTaxId: [tokenid, cost],
+      updateInfo: [tokenid, cost],
+      changeDidOwner: [tokenid, cost],
+      revokeHash: [tokenid, cost],
+      removeDid: [tokenid, cost],
+      addCertificate: [tokenid, cost],
+      revokeCertificate: [tokenid, cost]
+    }
+    return this.setTokensAndCosts(tokenIdAndCost)
   }
 
   /**
@@ -572,8 +621,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} hash Process node hash
    * @returns {Promise} of transaction
    */
-  async revoke(hash) {
-    return this.process.revoke(this.exec, this.keypair, hash);
+  async revokeNode (hash) {
+    return this.process.revoke(this.exec, this.keypair, hash)
   }
 
   /**
@@ -583,7 +632,7 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @returns {Promise} of transaction
    */
   async getProcessNode(hash) {
-    return this.process.getProcessNode(this.exec, hash);
+    return this.process.getProcessNode(this.exec, hash)
   }
 
   /**
@@ -596,8 +645,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} hash Process node hash
    * @returns {Promise} of transaction
    */
-  async pathTo(hash) {
-    return this.process.pathTo(this.exec, this.keypair, hash);
+  async pathTo (hash) {
+    return this.process.pathTo(this.exec, this.keypair, hash)
   }
 
   /**
@@ -611,8 +660,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} hash Process node hash
    * @returns {Promise} of transaction
    */
-  async getFullProcessTree(hash) {
-    return this.process.getFullProcessTree(this.exec, this.keypair, hash);
+  async getFullProcessTree (hash) {
+    return this.process.getFullProcessTree(this.exec, this.keypair, hash)
   }
 
   // Functions deling with tokens
@@ -631,15 +680,12 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    *
    * @param {number} id The identifier of the new token.
    * @param {object} admin The admin of this class of tokens.
-   * @param {number} minBalance The minimum balance.
+   * @param {number} minBalance The minimum balance (Defaults to zero).
    * @returns {Promise} of transaction
    */
-  async createToken(id, admin, minBalance) {
-    return this.tokens.createToken(this.exec, this.keypair, id, admin, minBalance);
-  }
-
-  async createNewToken(id, admin, minBalance) {
-    return this.tokens.createNewToken(this.exec, this.keypair, id, admin, minBalance);
+  async createToken (id, admin, minBalance = 0) {
+    console.log(this.keypair.address);
+    return this.tokens.createToken(this.exec, this.keypair, id, admin, minBalance)
   }
 
   /**
@@ -661,8 +707,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} minBalance The minimum balance.
    * @returns {Promise} of transaction
    */
-  async forceCreateToken(id, owner, isSufficient, minBalance) {
-    return this.tokens.forceCreateToken(this.exec, this.keypair, id, owner, isSufficient, minBalance);
+  async forceCreateToken (id, owner, isSufficient, minBalance) {
+    return this.tokens.forceCreateToken(this.exec, this.keypair, id, owner, isSufficient, minBalance)
   }
 
   /**
@@ -678,8 +724,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} witness The identifier of the token to be destroyed.
    * @returns {Promise} of transaction
    */
-  async destroyToken(id, witness) {
-    return this.tokens.destroyToken(this.exec, this.keypair, id, witness);
+  async destroyToken (id, witness) {
+    return this.tokens.destroyToken(this.exec, this.keypair, id, witness)
   }
 
   /**
@@ -694,8 +740,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} amount The amount of the token to be minted.
    * @returns {Promise} of transaction
    */
-  async mintToken(id, beneficiary, amount) {
-    return this.tokens.mintToken(this.exec, this.keypair, id, beneficiary, amount);
+  async mintToken (id, beneficiary, amount) {
+    return this.tokens.mintToken(this.exec, this.keypair, id, beneficiary, amount)
   }
 
   /**
@@ -714,8 +760,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} amount The maximum amount by which `who`'s balance should be reduced.
    * @returns {Promise} of transaction
    */
-  async burnToken(id, who, amount) {
-    return this.tokens.burnToken(this.exec, this.keypair, id, who, amount);
+  async burnToken (id, who, amount) {
+    return this.tokens.burnToken(this.exec, this.keypair, id, who, amount)
   }
 
   /**
@@ -736,8 +782,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} amount The amount by which the sender's balance of tokens should be reduced.
    * @returns {Promise} of transaction
    */
-  async transferToken(id, target, amount) {
-    return this.tokens.transferToken(this.exec, this.keypair, id, target, amount);
+  async transferToken (id, target, amount) {
+    return this.tokens.transferToken(this.exec, this.keypair, id, target, amount)
   }
 
   /**
@@ -757,8 +803,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} amount The amount actually transferred.
    * @returns {Promise} of transaction
    */
-  async transferTokenKeepAlive(id, target, amount) {
-    return this.tokens.transferTokenKeepAlive(this.exec, this.keypair, id, target, amount);
+  async transferTokenKeepAlive (id, target, amount) {
+    return this.tokens.transferTokenKeepAlive(this.exec, this.keypair, id, target, amount)
   }
 
   /**
@@ -781,8 +827,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} amount The amount by which the `source`'s balance of tokens should be reduced.
    * @returns {Promise} of transaction
    */
-  async forceTransferToken(id, source, dest, amount) {
-    return this.tokens.forceTransferToken(this.exec, this.keypair, id, source, dest, amount);
+  async forceTransferToken (id, source, dest, amount) {
+    return this.tokens.forceTransferToken(this.exec, this.keypair, id, source, dest, amount)
   }
 
   /**
@@ -796,8 +842,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} who The account to be frozen.
    * @returns {Promise} of transaction
    */
-  async freezeAccountForToken(id, who) {
-    return this.tokens.freezeAccountForToken(this.exec, this.keypair, id, who);
+  async freezeAccountForToken (id, who) {
+    return this.tokens.freezeAccountForToken(this.exec, this.keypair, id, who)
   }
 
   /**
@@ -805,14 +851,14 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * Sender should be the Admin of the token `id`.
    *
    * - `id`: The identifier of the token to be frozen.
-   * - `who`: The account to be unfrozen.
+   * - `who`: The account to be unfreeze.
    *
    * @param {number} id The identifier of the token.
-   * @param {object} who The account to be unfrozen.
+   * @param {object} who The account to be unfreeze.
    * @returns {Promise} of transaction
    */
-  async unfrozenAccountForToken(id, who) {
-    return this.tokens.unfrozenAccountForToken(this.exec, this.keypair, id, who);
+  async unfreezeAccountForToken (id, who) {
+    return this.tokens.unfreezeAccountForToken(this.exec, this.keypair, id, who)
   }
 
   /**
@@ -824,8 +870,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} id The identifier of the token.
    * @returns {Promise} of transaction
    */
-  async freezeToken(id) {
-    return this.tokens.freezeToken(this.exec, this.keypair, id);
+  async freezeToken (id) {
+    return this.tokens.freezeToken(this.exec, this.keypair, id)
   }
 
   /**
@@ -837,8 +883,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} id The identifier of the token.
    * @returns {Promise} of transaction
    */
-  async unfrozenToken(id) {
-    return this.tokens.unfrozenToken(this.exec, this.keypair, id);
+  async unfreezeToken (id) {
+    return this.tokens.unfreezeToken(this.exec, this.keypair, id)
   }
 
   /**
@@ -852,8 +898,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} owner The new Owner of this token.
    * @returns {Promise} of transaction
    */
-  async transferTokenOwnership(id, owner) {
-    return this.tokens.transferTokenOwnership(this.exec, this.keypair, id, owner);
+  async transferTokenOwnership (id, owner) {
+    return this.tokens.transferTokenOwnership(this.exec, this.keypair, id, owner)
   }
 
   /**
@@ -871,8 +917,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} freezer The new Freezer of this toke.
    * @returns {Promise} of transaction
    */
-  async setTokenTeam(id, issuer, admin, freezer) {
-    return this.tokens.setTokenTeam(this.exec, this.keypair, id, issuer, admin, freezer);
+  async setTokenTeam (id, issuer, admin, freezer) {
+    return this.tokens.setTokenTeam(this.exec, this.keypair, id, issuer, admin, freezer)
   }
 
   /**
@@ -894,8 +940,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} decimals The number of decimals this token uses to represent one unit.
    * @returns {Promise} of transaction
    */
-  async setTokenMetadata(id, name, symbol, decimals) {
-    return this.tokens.setTokenMetadata(this.exec, this.keypair, id, name, symbol, decimals);
+  async setTokenMetadata (id, name, symbol, decimals) {
+    return this.tokens.setTokenMetadata(this.exec, this.keypair, id, name, symbol, decimals)
   }
 
   /**
@@ -909,8 +955,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} id The identifier of the token.
    * @returns {Promise} of transaction
    */
-  async clearTokenMetadata(id) {
-    return this.tokens.clearTokenMetadata(this.exec, this.keypair, id);
+  async clearTokenMetadata (id) {
+    return this.tokens.clearTokenMetadata(this.exec, this.keypair, id)
   }
 
   /**
@@ -930,8 +976,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {bool} isFrozen The identifier of the token.
    * @returns {Promise} of transaction
    */
-  async forceSetTokenMetadata(id, name, symbol, decimals, isFrozen) {
-    return this.tokens.forceSetTokenMetadata(this.exec, this.keypair, id, name, symbol, decimals, isFrozen);
+  async forceSetTokenMetadata (id, name, symbol, decimals, isFrozen) {
+    return this.tokens.forceSetTokenMetadata(this.exec, this.keypair, id, name, symbol, decimals, isFrozen)
   }
 
   /**
@@ -944,8 +990,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} id The identifier of the token.
    * @returns {Promise} of transaction
    */
-  async forceClearTokenMetadata(id) {
-    return this.tokens.forceClearTokenMetadata(this.exec, this.keypair, id);
+  async forceClearTokenMetadata (id) {
+    return this.tokens.forceClearTokenMetadata(this.exec, this.keypair, id)
   }
 
   /**
@@ -976,8 +1022,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {bool} isFrozen Whether this token class is frozen except for permissioned/admin instructions.
    * @returns {Promise} of transaction
    */
-  async forceTokenStatus(id, owner, issuer, admin, freezer, minBalance, isSufficient, isFrozen) {
-    return this.tokens.forceTokenStatus(this.exec, this.keypair, id, owner, issuer, admin, freezer, minBalance, isSufficient, isFrozen);
+  async forceTokenStatus (id, owner, issuer, admin, freezer, minBalance, isSufficient, isFrozen) {
+    return this.tokens.forceTokenStatus(this.exec, this.keypair, id, owner, issuer, admin, freezer, minBalance, isSufficient, isFrozen)
   }
 
   /**
@@ -1001,8 +1047,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} amount The amount of token that may be transferred by `delegate`.
    * @returns {Promise} of transaction
    */
-  async approveTokenTransfer(id, delegate, amount) {
-    return this.tokens.approveTokenTransfer(this.exec, this.keypair, id, delegate, amount);
+  async approveTokenTransfer (id, delegate, amount) {
+    return this.tokens.approveTokenTransfer(this.exec, this.keypair, id, delegate, amount)
   }
 
   /**
@@ -1019,8 +1065,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} delegate The account delegated permission to transfer token.
    * @returns {Promise} of transaction
    */
-  async cancelApprovalTokenTransfer(id, delegate) {
-    return this.tokens.cancelApprovalTokenTransfer(this.exec, this.keypair, id, delegate);
+  async cancelApprovalTokenTransfer (id, delegate) {
+    return this.tokens.cancelApprovalTokenTransfer(this.exec, this.keypair, id, delegate)
   }
 
   /**
@@ -1038,8 +1084,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} delegate The account delegated permission to transfer token.
    * @returns {Promise} of transaction
    */
-  async forceCancelApprovalTokenTransfer(id, owner, delegate) {
-    return this.tokens.forceCancelApprovalTokenTransfer(this.exec, this.keypair, id, owner, delegate);
+  async forceCancelApprovalTokenTransfer (id, owner, delegate) {
+    return this.tokens.forceCancelApprovalTokenTransfer(this.exec, this.keypair, id, owner, delegate)
   }
 
   /**
@@ -1063,8 +1109,50 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} amount The amount of tokens to transfer.
    * @returns {Promise} of transaction
    */
-  async transferTokenApproval(id, owner, destination, amount) {
-    return this.tokens.transferTokenApproval(this.exec, this.keypair, id, owner, destination, amount);
+  async transferTokenApproval (id, owner, destination, amount) {
+    return this.tokens.transferTokenApproval(this.exec, this.keypair, id, owner, destination, amount)
+  }
+
+  /**
+   * Set tokens ids and costs for transactions.
+   * Origin must be root.
+   *
+   * @param {object} tokenAndCost The set of tokens ids and costs for transactions.
+   * @returns {Promise} of transaction
+   */
+  async setTokensAndCosts (tokenAndCost) {
+    const tokenIdAndCost = {
+      register_did: tokenAndCost.registerDid ? tokenAndCost.registerDid : [0, 0],
+      set_storage_address: tokenAndCost.setStorageAddress ? tokenAndCost.setStorageAddress : [0, 0],
+      add_organization: tokenAndCost.registerDid ? tokenAndCost.registerDid : [0, 0],
+      set_key: tokenAndCost.setKey ? tokenAndCost.setKey : [0, 0],
+      put_hash: tokenAndCost.putHash ? tokenAndCost.putHash : [0, 0],
+      change_legal_name_or_tax_id: tokenAndCost.changeLegalNameOrTaxId ? tokenAndCost.changeLegalNameOrTaxId : [0, 0],
+      update_info: tokenAndCost.updateInfo ? tokenAndCost.updateInfo : [0, 0],
+      change_did_owner: tokenAndCost.changeDidOwner ? tokenAndCost.changeDidOwner : [0, 0],
+      revoke_hash: tokenAndCost.revokeHash ? tokenAndCost.revokeHash : [0, 0],
+      remove_did: tokenAndCost.removeDid ? tokenAndCost.removeDid : [0, 0],
+      add_certificate: tokenAndCost.addCertificate ? tokenAndCost.addCertificate : [0, 0],
+      revoke_certificate: tokenAndCost.revokeCertificate ? tokenAndCost.revokeCertificate : [0, 0],
+      start_process: tokenAndCost.startProcess ? tokenAndCost.startProcess : [0, 0],
+      start_subprocess: tokenAndCost.startSubprocess ? tokenAndCost.startSubprocess : [0, 0],
+      start_step: tokenAndCost.startStep ? tokenAndCost.startStep : [0, 0],
+      add_document: tokenAndCost.addDocument ? tokenAndCost.addDocument : [0, 0],
+      add_attachment: tokenAndCost.addAttachment ? tokenAndCost.addAttachment : [0, 0],
+      path_to: tokenAndCost.pathTo ? tokenAndCost.pathTo : [0, 0],
+      get_full_process_tree: tokenAndCost.getFullProcessTree ? tokenAndCost.getFullProcessTree : [0, 0],
+      revoke: tokenAndCost.revokeNode ? tokenAndCost.revokeNode : [0, 0]
+    }
+    return this.tokens.setTokensAndCosts(this.exec, this.keypair, tokenIdAndCost)
+  }
+
+  /**
+   * Get the Token id and cost of all transactions
+   *
+   * @returns {Promise} of transaction
+   */
+  async getTokenIdAndCosts () {
+    return this.tokens.getTokenIdAndCosts(this.exec)
   }
 
   /**
@@ -1074,8 +1162,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} id TokenId
    * @returns {Promise} of Transaction
    */
-  async getTokenDetails(id) {
-    return this.tokens.getTokenDetails(this.exec, id);
+  async getTokenDetails (id) {
+    return this.tokens.getTokenDetails(this.exec, id)
   }
 
   /**
@@ -1085,8 +1173,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} id TokenId
    * @returns {Promise} of Transaction
    */
-  async getTokenMetadata(id) {
-    return this.tokens.getTokenMetadata(this.exec, id);
+  async getTokenMetadata (id) {
+    return this.tokens.getTokenMetadata(this.exec, id)
   }
 
   /**
@@ -1096,8 +1184,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} who Account
    * @returns {Promise} of Transaction
    */
-  async getAccountTokenData(id, who) {
-    return this.tokens.getAccountTokenData(this.exec, id, who);
+  async getAccountTokenData (id, who) {
+    return this.tokens.getAccountTokenData(this.exec, id, who)
   }
 
   /**
@@ -1123,8 +1211,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} admin The admin of this class of tokens.
    * @returns {Promise} of transaction
    */
-  async createNFTClass(classid, admin) {
-    return this.classNFTs.createNFTClass(this.exec, this.keypair, classid, admin);
+  async createNFTClass (classid, admin) {
+    return this.classNFTs.createNFTClass(this.exec, this.keypair, classid, admin)
   }
 
   /**
@@ -1147,8 +1235,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {bool} freeHolding The free Holdinfg of this class of tokens.
    * @returns {Promise} of transaction
    */
-  async forceCreateNFTClass(classid, owner, freeHolding) {
-    return this.classNFTs.forceCreateNFTClass(this.exec, this.keypair, classid, owner, freeHolding);
+  async forceCreateNFTClass (classid, owner, freeHolding) {
+    return this.classNFTs.forceCreateNFTClass(this.exec, this.keypair, classid, owner, freeHolding)
   }
 
   /**
@@ -1165,8 +1253,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} witness Information on the instances minted in the asset class.
    * @returns {Promise} of transaction
    */
-  async destroyNFTClass(classid, witness) {
-    return this.classNFTs.destroyNFTClass(this.exec, this.keypair, classid, witness);
+  async destroyNFTClass (classid, witness) {
+    return this.classNFTs.destroyNFTClass(this.exec, this.keypair, classid, witness)
   }
 
   /**
@@ -1185,8 +1273,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} owner The initial owner of the minted asset.
    * @returns {Promise} of transaction
    */
-  async mintNFTInstance(classid, instanceid, owner) {
-    return this.classNFTs.mintNFTInstance(this.exec, this.keypair, classid, instanceid, owner);
+  async mintNFTInstance (classid, instanceid, owner) {
+    return this.classNFTs.mintNFTInstance(this.exec, this.keypair, classid, instanceid, owner)
   }
 
   /**
@@ -1206,8 +1294,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} checkOwner Checks Owner.
    * @returns {Promise} of transaction
    */
-  async burnNFTInstance(classid, instanceid, checkOwner) {
-    return this.classNFTs.burnNFTInstance(this.exec, this.keypair, classid, instanceid, checkOwner);
+  async burnNFTInstance (classid, instanceid, checkOwner) {
+    return this.classNFTs.burnNFTInstance(this.exec, this.keypair, classid, instanceid, checkOwner)
   }
 
   /**
@@ -1230,8 +1318,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} dest The account to receive ownership of the asset.
    * @returns {Promise} of transaction
    */
-  async transferNFTInstance(classid, instanceid, dest) {
-    return this.classNFTs.transferNFTInstance(this.exec, this.keypair, classid, instanceid, dest);
+  async transferNFTInstance (classid, instanceid, dest) {
+    return this.classNFTs.transferNFTInstance(this.exec, this.keypair, classid, instanceid, dest)
   }
 
   /**
@@ -1255,8 +1343,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} instances The instances of the asset class whose deposits will be reevaluated.
    * @returns {object} true
    */
-  async redepositNFTInstances(classid, instances) {
-    return this.classNFTs.redepositNFTInstances(this.exec, this.keypair, classid, instances);
+  async redepositNFTInstances (classid, instances) {
+    return this.classNFTs.redepositNFTInstances(this.exec, this.keypair, classid, instances)
   }
 
   /**
@@ -1273,8 +1361,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} instanceid The instance of the asset to be frozen.
    * @returns {Promise} of transaction
    */
-  async freezeNFTInstance(classid, instanceid) {
-    return this.classNFTs.freezeNFTInstance(this.exec, this.keypair, classid, instanceid);
+  async freezeNFTInstance (classid, instanceid) {
+    return this.classNFTs.freezeNFTInstance(this.exec, this.keypair, classid, instanceid)
   }
 
   /**
@@ -1291,8 +1379,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} instanceid The instance of the asset to be frozen.
    * @returns {Promise} of transaction
    */
-  async unfrozenNFTInstance(classid, instanceid) {
-    return this.classNFTs.unfrozenNFTInstance(this.exec, this.keypair, classid, instanceid);
+  async unfreezeNFTInstance (classid, instanceid) {
+    return this.classNFTs.unfreezeNFTInstance(this.exec, this.keypair, classid, instanceid)
   }
 
   /**
@@ -1307,8 +1395,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} classid The class of the asset to be frozen.
    * @returns {Promise} of transaction
    */
-  async freezeNFTClass(classid) {
-    return this.classNFTs.freezeNFTClass(this.exec, this.keypair, classid);
+  async freezeNFTClass (classid) {
+    return this.classNFTs.freezeNFTClass(this.exec, this.keypair, classid)
   }
 
   /**
@@ -1323,8 +1411,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} classid The class of the asset to be frozen.
    * @returns {Promise} of transaction
    */
-  async unfrozenNFTClass(classid) {
-    return this.classNFTs.unfrozenNFTClass(this.exec, this.keypair, classid);
+  async unfreezeNFTClass (classid) {
+    return this.classNFTs.unfrozenNFTClass(this.exec, this.keypair, classid)
   }
 
   /**
@@ -1341,8 +1429,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} owner The new Owner of this asset class.
    * @returns {Promise} of transaction
    */
-  async transferOwnershipOfNFTClass(classid, owner) {
-    return this.classNFTs.transferOwnershipOfNFTClass(this.exec, this.keypair, classid, owner);
+  async transferOwnershipOfNFTClass (classid, owner) {
+    return this.classNFTs.transferOwnershipOfNFTClass(this.exec, this.keypair, classid, owner)
   }
 
   /**
@@ -1363,8 +1451,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} freezer The new Freezer of this asset class.
    * @returns {Promise} of transaction
    */
-  async setTeamOfNFTClass(classid, issuer, admin, freezer) {
-    return this.classNFTs.setTeamOfNFTClass(this.exec, this.keypair, classid, issuer, admin, freezer);
+  async setTeamOfNFTClass (classid, issuer, admin, freezer) {
+    return this.classNFTs.setTeamOfNFTClass(this.exec, this.keypair, classid, issuer, admin, freezer)
   }
 
   /**
@@ -1383,8 +1471,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} delegate The account to delegate permission to transfer the asset.
    * @returns {Promise} of transaction
    */
-  async approveTransferOfNFTInstance(classid, instanceid, delegate) {
-    return this.classNFTs.approveTransferOfNFTInstance(this.exec, this.keypair, classid, instanceid, delegate);
+  async approveTransferOfNFTInstance (classid, instanceid, delegate) {
+    return this.classNFTs.approveTransferOfNFTInstance(this.exec, this.keypair, classid, instanceid, delegate)
   }
 
   /**
@@ -1408,8 +1496,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} maybeCheckDelegate Check delegate.
    * @returns {Promise} of transaction
    */
-  async cancelApprovalOfTransferOfNFTInstance(classid, instanceid, maybeCheckDelegate) {
-    return this.classNFTs.cancelApprovalOfTransferOfNFTInstance(this.exec, this.keypair, classid, instanceid, maybeCheckDelegate);
+  async cancelApprovalOfTransferOfNFTInstance (classid, instanceid, maybeCheckDelegate) {
+    return this.classNFTs.cancelApprovalOfTransferOfNFTInstance(this.exec, this.keypair, classid, instanceid, maybeCheckDelegate)
   }
 
   /**
@@ -1438,8 +1526,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} isFrozen Frozen?.
    * @returns {Promise} of transaction
    */
-  async forceTokenStatusOfNFTClass(classid, owner, issuer, admin, freezer, freeHolding, isFrozen) {
-    return this.classNFTs.forceTokenStatusOfNFTClass(this.exec, this.keypair, classid, owner, issuer, admin, freezer, freeHolding, isFrozen);
+  async forceTokenStatusOfNFTClass (classid, owner, issuer, admin, freezer, freeHolding, isFrozen) {
+    return this.classNFTs.forceTokenStatusOfNFTClass(this.exec, this.keypair, classid, owner, issuer, admin, freezer, freeHolding, isFrozen)
   }
 
   /**
@@ -1465,8 +1553,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} value The value to which to set the attribute.
    * @returns {Promise} of transaction
    */
-  async setAttributeOfNFT(classid, maybeInstance, key, value) {
-    return this.classNFTs.setAttributeOfNFT(this.exec, this.keypair, classid, maybeInstance, key, value);
+  async setAttributeOfNFT (classid, maybeInstance, key, value) {
+    return this.classNFTs.setAttributeOfNFT(this.exec, this.keypair, classid, maybeInstance, key, value)
   }
 
   /**
@@ -1491,8 +1579,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} key The key of the attribute.
    * @returns {Promise} of transaction
    */
-  async clearAttributeOfNFT(classid, maybeInstance, key) {
-    return this.classNFTs.clearAttributeOfNFT(this.exec, this.keypair, classid, maybeInstance, key);
+  async clearAttributeOfNFT (classid, maybeInstance, key) {
+    return this.classNFTs.clearAttributeOfNFT(this.exec, this.keypair, classid, maybeInstance, key)
   }
 
   /**
@@ -1518,8 +1606,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} isFrozen Frozen?.
    * @returns {Promise} of transaction
    */
-  async setMetadataOfNFTInstance(classid, instanceid, data, isFrozen) {
-    return this.classNFTs.setMetadataOfNFTInstance(this.exec, this.keypair, classid, instanceid, data, isFrozen);
+  async setMetadataOfNFTInstance (classid, instanceid, data, isFrozen) {
+    return this.classNFTs.setMetadataOfNFTInstance(this.exec, this.keypair, classid, instanceid, data, isFrozen)
   }
 
   /**
@@ -1539,8 +1627,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} instanceid The identifier of the asset instance whose metadata to clear.
    * @returns {Promise} of transaction
    */
-  async clearMetadataOfNFTInstance(classid, instanceid) {
-    return this.classNFTs.clearMetadataOfNFTInstance(this.exec, this.keypair, classid, instanceid);
+  async clearMetadataOfNFTInstance (classid, instanceid) {
+    return this.classNFTs.clearMetadataOfNFTInstance(this.exec, this.keypair, classid, instanceid)
   }
 
   /**
@@ -1564,8 +1652,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {object} isFrozen Frozen?.
    * @returns {Promise} of transaction
    */
-  async setMetadataOfNFTClass(classid, data, isFrozen) {
-    return this.classNFTs.setMetadataOfNFTClass(this.exec, this.keypair, classid, data, isFrozen);
+  async setMetadataOfNFTClass (classid, data, isFrozen) {
+    return this.classNFTs.setMetadataOfNFTClass(this.exec, this.keypair, classid, data, isFrozen)
   }
 
   /**
@@ -1583,9 +1671,10 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {number} classid The class of the asset.
    * @returns {Promise} of transaction
    */
-  async clearMetadataOfNFTClass(classid) {
-    return this.classNFTs.clearMetadataOfNFTClass(this.exec, this.keypair, classid);
+  async clearMetadataOfNFTClass (classid) {
+    return this.classNFTs.clearMetadataOfNFTClass(this.exec, this.keypair, classid)
   }
+
 
   /**
    * Get details of an NFT asset class..
@@ -1593,8 +1682,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} classid NFT Class Id
    * @returns {object} Class Details
    */
-  async getNFTClassDetails(classid) {
-    return this.classNFTs.getNFTClassDetails(this.exec, classid);
+  async getNFTClassDetails (classid) {
+    return this.classNFTs.getNFTClassDetails(this.exec, classid)
   }
 
   /**
@@ -1605,8 +1694,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} instanceid Instance Id
    * @returns {object} Class Details
    */
-  async checkNFTOwnership(who, classid, instanceid) {
-    return this.classNFTs.checkNFTOwnership(this.exec, who, classid, instanceid);
+  async checkNFTOwnership (who, classid, instanceid) {
+    return this.classNFTs.checkNFTOwnership(this.exec, who, classid, instanceid)
   }
 
   /**
@@ -1614,8 +1703,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    *
    * @returns {object} Class Details
    */
-  async getAllNFTs() {
-    return this.classNFTs.getAllNFTs(this.exec);
+  async getAllNFTs () {
+    return this.classNFTs.getAllNFTs(this.exec)
   }
 
   /**
@@ -1625,8 +1714,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} who Account
    * @returns {object} Class Details
    */
-  async getNFTsFromAccount(who) {
-    return this.classNFTs.getNFTsFromAccount(this.exec, who);
+  async getNFTsFromAccount (who) {
+    return this.classNFTs.getNFTsFromAccount(this.exec, who)
   }
 
   /**
@@ -1636,8 +1725,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} instanceid Instance Id
    * @returns {object} Class Details
    */
-  async getNFTOwner(classid, instanceid) {
-    return this.classNFTs.getNFTOwner(this.exec, classid, instanceid);
+  async getNFTOwner (classid, instanceid) {
+    return this.classNFTs.getNFTOwner(this.exec, classid, instanceid)
   }
 
   /**
@@ -1646,8 +1735,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} classid Class Id
    * @returns {object} Class Details
    */
-  async getNFTClassMetadata(classid) {
-    return this.classNFTs.classMetadataOf(this.exec, classid);
+  async getNFTClassMetadata (classid) {
+    return this.classNFTs.classMetadataOf(this.exec, classid)
   }
 
   /**
@@ -1657,8 +1746,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} instanceid Instance Id
    * @returns {object} Class Details
    */
-  async getNFTInstanceMetadata(classid, instanceid) {
-    return this.classNFTs.getNFTInstanceMetadata(this.exec, classid, instanceid);
+  async getNFTInstanceMetadata (classid, instanceid) {
+    return this.classNFTs.getNFTInstanceMetadata(this.exec, classid, instanceid)
   }
 
   /**
@@ -1669,8 +1758,8 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} key Attribute key
    * @returns {object} Class Details
    */
-  async getNFTAttribute(classid, instanceid, key) {
-    return this.classNFTs.getNFTAttribute(this.exec, classid, instanceid, key);
+  async getNFTAttribute (classid, instanceid, key) {
+    return this.classNFTs.getNFTAttribute(this.exec, classid, instanceid, key)
   }
 
   /**
@@ -1679,7 +1768,7 @@ module.exports = class SubstrateLib extends BlockchainInterface {
    * @param {string} eventMethod Event to listen to
    * @returns {Promise} Result of the transaction
    */
-  async wait4Event(eventMethod) {
-    return this.exec.wait4Event(eventMethod);
+  async wait4Event (eventMethod) {
+    return this.exec.wait4Event(eventMethod)
   }
-};
+}
